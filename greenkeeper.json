@@ -1,0 +1,19 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "advanced-atjs-integration-serverstate/package.json",
+        "ecid-analytics-atjs-integration/package.json",
+        "ecid-analytics-integration/package.json",
+        "ecid-integration/package.json",
+        "multiple-mbox-ecid-analytics-atjs-integration/package.json",
+        "next-server-side-rendering-demo/package.json",
+        "react-shopping-cart-demo/package.json",
+        "shared-ecid-analytics-integration/package.json",
+        "target-only/package.json",
+        "target-traces/package.json",
+        "еcid-customer-ids-integration/package.json"
+      ]
+    }
+  }
+}
