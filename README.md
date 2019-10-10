@@ -1,5 +1,7 @@
 # Target Node.js SDK Samples & Demos
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/adobe/target-nodejs-sdk-samples.svg)](https://greenkeeper.io/)
+
 This repository contains samples and demos for the [Target Node.js SDK](https://www.npmjs.com/package/@adobe/target-nodejs-sdk)
 
 ## Demos
