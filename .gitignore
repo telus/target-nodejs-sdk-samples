@@ -1,4 +1,6 @@
 # package directories
 node_modules
 jspm_packages
-.idea
+.idea/
+.DS_Store
+

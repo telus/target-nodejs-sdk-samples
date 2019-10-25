@@ -1,6 +1,8 @@
 {
-  "client": "adobetargetmobile",
-  "organizationId": "B8A054D958807F770A495DD6@AdobeOrg",
+  "client": "adobesummit2018",
+  "organizationId": "65453EA95A70434F0A495D34@AdobeOrg",
   "timeout": 10000,
-  "serverDomain": "adobetargetmobile.tt.omtrdc.net"
+  "serverDomain": "adobesummit2018.tt.omtrdc.net",
+  "cookieDomain": "waters-local.com",
+  "launchScript": "//assets.adobedtm.com/b52f8b870afa/ae8cc3519732/launch-5bb8c41b5808-development.min.js"
 }
