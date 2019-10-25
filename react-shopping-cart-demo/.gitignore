@@ -10,3 +10,4 @@ node_modules
 npm-debug.log
 .vscode
 .idea
+public/assets/js/app.js
