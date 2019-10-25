@@ -14,10 +14,6 @@
   <link rel="stylesheet" href="assets/css/app.css">
   <script src="VisitorAPI.js"></script>
   <script>
-    window.target = {
-      rules: []
-    };
-
     Visitor.getInstance("${organizationId}", {serverState: ${visitorState}});
   </script>
   <script>
