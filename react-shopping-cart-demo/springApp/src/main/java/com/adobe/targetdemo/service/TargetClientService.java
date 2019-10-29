@@ -13,9 +13,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class TargetClientService {
+
+  private static final Logger log = Logger.getLogger(String.valueOf(TargetClientService.class));
 
   private ConfigProperties configProperties;
   private TargetClient targetClient;
@@ -29,16 +32,25 @@ public class TargetClientService {
     this.targetClient = TargetClient.create(config);
   }
 
-  public TargetDeliveryResponse getPrefetchOffers(HttpServletRequest request, HttpServletResponse response) {
+  public TargetDeliveryResponse getPrefetchOffers(HttpServletRequest request, HttpServletResponse response, String... mboxes) {
     Cookie[] cookies = request.getCookies();
+    Address address = getAddress(request);
+    String auth = request.getParameter("authorization");
+    Trace trace = null;
+    if (auth != null) {
+      trace = new Trace().authorizationToken(auth);
+    }
+    ViewRequest viewRequest = (ViewRequest)new ViewRequest().address(address);
+    List<ViewRequest> views = Collections.singletonList(viewRequest);
     TargetDeliveryRequest targetRequest = TargetDeliveryRequest.builder()
-      .context(new Context().channel(ChannelType.WEB).address(getAddress(request)))
+      .context(new Context().channel(ChannelType.WEB))
       .cookies(getTargetCookies(cookies))
-      .prefetch(new PrefetchRequest().views(Collections.singletonList(new ViewRequest())))
-      .trace(new Trace().authorizationToken(request.getParameter("authorization")))
+      .prefetch(new PrefetchRequest().views(views).mboxes(getMboxRequests(mboxes)))
+      .trace(trace)
       .build();
     TargetDeliveryResponse targetResponse = this.targetClient.getOffers(targetRequest);
-    setCookies(targetResponse.getCookies(), response);
+    log.info("targetResponse=" + targetResponse);
+    setTargetCookies(targetResponse.getCookies(), response);
     return targetResponse;
   }
 
@@ -53,7 +65,7 @@ public class TargetClientService {
       .collect(Collectors.toList());
   }
 
-  private HttpServletResponse setCookies(List<TargetCookie> targetCookies,
+  private HttpServletResponse setTargetCookies(List<TargetCookie> targetCookies,
                                                 HttpServletResponse response) {
     targetCookies
       .stream()
@@ -65,9 +77,17 @@ public class TargetClientService {
     return response;
   }
 
-  private static Address getAddress(HttpServletRequest request) {
+  private Address getAddress(HttpServletRequest request) {
     return new Address()
       .referringUrl(request.getHeader("referer"))
       .url(request.getRequestURL().toString());
+  }
+
+  private List<MboxRequest> getMboxRequests(String... name) {
+    List<MboxRequest> mboxRequests = new ArrayList<>();
+    for (int i = 0; i < name.length; i++) {
+      mboxRequests.add(new MboxRequest().name(name[i]).index(i));
+    }
+    return mboxRequests;
   }
 }

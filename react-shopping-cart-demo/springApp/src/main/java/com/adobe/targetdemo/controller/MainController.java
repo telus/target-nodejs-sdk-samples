@@ -22,7 +22,7 @@ public class MainController {
   public String index(Model model, HttpServletRequest request, HttpServletResponse response) {
 
     TargetClientService targetClient = new TargetClientService(configProperties);
-    TargetDeliveryResponse targetResponse = targetClient.getPrefetchOffers(request, response);
+    TargetDeliveryResponse targetResponse = targetClient.getPrefetchOffers(request, response, "product");
 
     model.addAttribute("organizationId", configProperties.getOrganizationId());
     model.addAttribute("visitorState", targetResponse.getVisitorState());
