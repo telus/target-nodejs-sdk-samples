@@ -12,26 +12,19 @@
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css"/>
   <link rel="stylesheet" href="assets/css/base.min.css">
   <link rel="stylesheet" href="assets/css/app.css">
-  <script src="VisitorAPI.js"></script>
-  <script>
-    Visitor.getInstance("${organizationId}", {serverState: ${visitorState}});
-  </script>
   <script>
     window.targetGlobalSettings = {
       overrideMboxEdgeServer: true,
       clientCode: "${clientCode}",
       imsOrgId: "${organizationId}",
       serverDomain: "${serverDomain}",
-      serverState: ${serverState} || {}
-    }
+      /* serverState: ${serverState} || {}, */
+    };
   </script>
-  <script src="at.js"></script>
-  <!--<script src="${launchScript}" async></script>-->
+  <script src="${launchScript}"></script>
 </head>
 <body>
   <div id="app"></div>
   <script src="assets/js/app.js"></script>
-  <script src="AppMeasurement.js"></script>
-  <script>var s_code=s.t();if(s_code)document.write(s_code);</script>
 </body>
 </html>

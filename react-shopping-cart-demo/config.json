@@ -3,6 +3,7 @@
   "organizationId": "65453EA95A70434F0A495D34@AdobeOrg",
   "timeout": 10000,
   "serverDomain": "adobesummit2018.tt.omtrdc.net",
-  "cookieDomain": "waters-local.com",
+  "analyticsTrackingServer": "adobesummit2018int.sc.omtrdc.net",
+  "cookieDomain": "local-target-test",
   "launchScript": "//assets.adobedtm.com/b52f8b870afa/ae8cc3519732/launch-5bb8c41b5808-development.min.js"
 }
