@@ -1,14 +1,15 @@
 package com.adobe.targetdemo.controller;
 
+import com.adobe.target.edge.client.model.TargetDeliveryResponse;
 import com.adobe.targetdemo.ConfigProperties;
+import com.adobe.targetdemo.service.TargetClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 
 @Controller
@@ -18,18 +19,17 @@ public class MainController {
   private ConfigProperties configProperties;
 
   @GetMapping("/")
-  public String index(@RequestParam(name="name", required = false, defaultValue = "World") String name, Model model) {
-    HashMap visitorState = new HashMap();
-    HashMap serverState = new HashMap();
+  public String index(Model model, HttpServletRequest request, HttpServletResponse response) {
 
-    model.addAttribute("name", name);
+    TargetClientService targetClient = new TargetClientService(configProperties);
+    TargetDeliveryResponse targetResponse = targetClient.getPrefetchOffers(request, response);
+
     model.addAttribute("organizationId", configProperties.getOrganizationId());
-    model.addAttribute("visitorState", visitorState);
+    model.addAttribute("visitorState", targetResponse.getVisitorState());
     model.addAttribute("clientCode", configProperties.getClient());
     model.addAttribute("serverDomain", configProperties.getServerDomain());
     model.addAttribute("launchScript", configProperties.getLaunchScript());
-
-    model.addAttribute("serverState", serverState);
+    model.addAttribute("serverState", targetResponse);
 
     return "index";
   }

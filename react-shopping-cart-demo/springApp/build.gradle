@@ -16,13 +16,15 @@ configurations {
 }
 
 repositories {
+  mavenLocal()
 	mavenCentral()
 }
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-  implementation 'com.adobe.target:target-java-client:1.0.0'
+  implementation 'com.adobe.target:java-sdk:1.0-SNAPSHOT'
+  implementation 'com.adobe.target:target-feature-flags:1.0-SNAPSHOT'
   developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
