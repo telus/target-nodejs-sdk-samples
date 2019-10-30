@@ -3,8 +3,15 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 // Load the Target NodeJS SDK library
 const TargetClient = require("@adobe/target-nodejs-sdk");
+const axios = require('axios');
+
 // Load the Target configuration (replace with configurations specific to your Adobe Client & Org)
 const CONFIG = require("./config.json");
+const {getSessionId} = require("@adobe/target-nodejs-sdk/src/helper");
+const {getCluster} = require("@adobe/target-nodejs-sdk/src/helper");
+const {getDeviceId} = require("@adobe/target-nodejs-sdk/src/helper");
+const {parseCookies} = require("@adobe/target-nodejs-sdk/src/cookies");
+const {getTargetHost} = require("@adobe/target-nodejs-sdk/src/helper");
 // Load the template of the HTML page returned in the response
 const TEMPLATE = fs.readFileSync(`${__dirname}/index.tpl`).toString();
 
@@ -148,6 +155,24 @@ function setTraceToken(trace = {}, req) {
   return Object.assign({}, trace, { authorizationToken });
 }
 
+function getOffersWithHeaders(options) {
+  const cookies = parseCookies(options.targetCookie);
+  const deviceId = getDeviceId(cookies);
+  const cluster = getCluster(deviceId, options.targetLocationHintCookie);
+  const host = getTargetHost(CONFIG.serverDomain, cluster, CONFIG.client, false);
+  const sessionId = getSessionId(cookies, options.sessionId);
+
+  const axiosInstance = axios.create({
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+      'User-Agent': options.request.context.userAgent
+    }
+  });
+
+  return axiosInstance.post(`http://mboxedge${cluster}.tt.omtrdc.net/rest/v1/delivery?client=${CONFIG.client}&sessionId=${sessionId}&version=2.2.0`, options.request);
+}
+
 /**
  * Call the Target Node Client getOffers API asynchronously and send the response with Target offers back to the client
  * @param request Target Delivery API request
@@ -156,15 +181,22 @@ function setTraceToken(trace = {}, req) {
  */
 async function processRequestWithTarget(request, req, res) {
   // Set the trace data on the Delivery API request object, if available
-  request.trace = setTraceToken(request.trace, req);
+  const trace = setTraceToken(request.trace, req);
+  if(Object.keys(trace).length > 0) {
+    request.trace = trace;
+  }
   // Build Target Node.js SDK API getOffers options
-  const options = Object.assign({ request }, getTargetCookieOptions(req));
+  const cookieOptions = getTargetCookieOptions(req);
+  const options = Object.assign({ request }, cookieOptions);
 
   try {
+    const respFull = await getOffersWithHeaders(options);
+
     // Call Target Node.js SDK getOffers asynchronously
     const resp = await targetClient.getOffers(options);
+
     // Send back the response with Target offers, getOffers call completes successfully
-    sendResponse(res, resp);
+    sendResponse(res, Object.assign(resp, {response: respFull.data}));
   } catch (e) {
     // Alternatively, log the error and send the page without Target data
     console.error("AT error: ", e);
@@ -184,7 +216,12 @@ function getAddress(req) {
 // Setup the root route Express app request handler for GET requests
 app.get("/", (req, res) => {
   // Build the Delivery API View Prefetch request
+  const userAgent = req.headers['user-agent'];
   const prefetchViewsRequest = {
+    context: {
+      userAgent,
+      channel: 'web'
+    },
     prefetch: {
       views: [{ address: getAddress(req) }]
     }

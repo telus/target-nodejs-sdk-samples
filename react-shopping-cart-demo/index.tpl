@@ -18,7 +18,7 @@
       clientCode: "${clientCode}",
       imsOrgId: "${organizationId}",
       serverDomain: "${serverDomain}",
-      /* serverState: ${serverState} || {}, */
+      serverState: ${serverState} || {},
     };
   </script>
   <script src="${launchScript}"></script>
