@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 // Load the Target NodeJS SDK library
 const TargetClient = require("@adobe/target-nodejs-sdk");
 const axios = require('axios');
+const Handlebars = require('handlebars');
 
 // Load the Target configuration (replace with configurations specific to your Adobe Client & Org)
 const CONFIG = require("./config.json");
@@ -12,8 +13,10 @@ const {getCluster} = require("@adobe/target-nodejs-sdk/src/helper");
 const {getDeviceId} = require("@adobe/target-nodejs-sdk/src/helper");
 const {parseCookies} = require("@adobe/target-nodejs-sdk/src/cookies");
 const {getTargetHost} = require("@adobe/target-nodejs-sdk/src/helper");
+
 // Load the template of the HTML page returned in the response
-const TEMPLATE = fs.readFileSync(`${__dirname}/index.tpl`).toString();
+const TEMPLATE = fs.readFileSync(`${__dirname}/index.handlebars`).toString();
+const handlebarsTemplate = Handlebars.compile(TEMPLATE, {noEscape: true});
 
 // Initialize the Express app
 const app = express();
@@ -54,17 +57,14 @@ function sendHtml(res, targetResponse) {
   };
 
   // Build the final HTML page by replacing the Target config and state placeholders with appropriate values
-  let result = TEMPLATE.replace(/\$\{organizationId\}/g, CONFIG.organizationId)
-    .replace("${clientCode}", CONFIG.client)
-    .replace("${visitorState}", JSON.stringify(targetResponse.visitorState))
-    .replace("${serverState}", JSON.stringify(serverState, null, " "))
-    .replace("${launchScript}", CONFIG.launchScript);
-
-  if (CONFIG.serverDomain) {
-    result = result.replace("${serverDomain}", CONFIG.serverDomain);
-  } else {
-    result = result.replace('serverDomain: "${serverDomain}"', "");
-  }
+  const result = handlebarsTemplate({
+    organizationId: CONFIG.organizationId,
+    clientCode: CONFIG.client,
+    visitorState: JSON.stringify(targetResponse.visitorState),
+    serverState: JSON.stringify(serverState),
+    launchScript: CONFIG.launchScript,
+    serverDomain: CONFIG.serverDomain,
+  });
 
   // Send the page to the client with a 200 OK HTTP status
   res.status(200).send(result);
