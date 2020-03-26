@@ -15,10 +15,12 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const TargetClient = require("@adobe/target-nodejs-sdk");
 const CONFIG = {
-  client: "adobetargetmobile",
-  organizationId: "B8A054D958807F770A495DD6@AdobeOrg",
+  client: "adobesummit2018",
+  organizationId: "65453EA95A70434F0A495D34@AdobeOrg",
   timeout: 10000,
-  logger: console
+  logger: console,
+  executionMode: "local",
+  artifactLocation: "https://target-local-decisioning-staging.s3.us-east-2.amazonaws.com/adobesummit2018/waters_test/rules.json"
 };
 const targetClient = TargetClient.create(CONFIG);
 const TEMPLATE = fs.readFileSync(__dirname + "/templates/index.tpl").toString();
@@ -32,19 +34,21 @@ function saveCookie(res, cookie) {
     return;
   }
 
-  res.cookie(cookie.name, cookie.value, {maxAge: cookie.maxAge * 1000});
+  res.cookie(cookie.name, cookie.value, { maxAge: cookie.maxAge * 1000 });
 }
 
 const getResponseHeaders = () => ({
   "Content-Type": "text/html",
-  "Expires": new Date().toUTCString()
+  Expires: new Date().toUTCString()
 });
 
 function sendHtml(res, offer) {
-  const htmlResponse = TEMPLATE
-    .replace("${organizationId}", CONFIG.organizationId)
+  const htmlResponse = TEMPLATE.replace(
+    "${organizationId}",
+    CONFIG.organizationId
+  )
     .replace("${visitorState}", JSON.stringify(offer.visitorState))
-    .replace("${content}", JSON.stringify(offer, null, ' '));
+    .replace("${content}", JSON.stringify(offer, null, 4));
 
   res.status(200).send(htmlResponse);
 }
@@ -52,6 +56,9 @@ function sendHtml(res, offer) {
 function sendSuccessResponse(res, response) {
   res.set(getResponseHeaders());
   saveCookie(res, response.targetCookie);
+  if(response.targetLocationHintCookie) {
+    saveCookie(res, response.targetLocationHintCookie);
+  }
   sendHtml(res, response);
 }
 
@@ -61,22 +68,35 @@ function sendErrorResponse(res, error) {
 }
 
 function getAddress(req) {
-  return { url: req.headers.host + req.originalUrl }
+  return { url: req.headers.host + req.originalUrl };
 }
 
 app.get("/", async (req, res) => {
-  const visitorCookie = req.cookies[TargetClient.getVisitorCookieName(CONFIG.organizationId)];
+  const visitorCookie =
+    req.cookies[encodeURIComponent(TargetClient.getVisitorCookieName(CONFIG.organizationId))];
   const targetCookie = req.cookies[TargetClient.TargetCookieName];
   const request = {
+    context: {
+      "userAgent": req.get("user-agent"),
+      "channel": "web",
+      "browser": {"host": req.get("host")},
+    },
     execute: {
-      mboxes: [{
-        address: getAddress(req),
-        name: "a1-serverside-ab"
-      }]
-    }};
+      pageLoad: {
+        parameters: {
+          foo: "bar"
+        }
+      },
+      mboxes: [{name: 'disney', index: 0}]
+    }
+  };
 
   try {
-    const response = await targetClient.getOffers({ request, visitorCookie, targetCookie });
+    const response = await targetClient.getOffers({
+      request,
+      visitorCookie,
+      targetCookie
+    });
     sendSuccessResponse(res, response);
   } catch (error) {
     console.error("Target:", error);
@@ -84,6 +104,6 @@ app.get("/", async (req, res) => {
   }
 });
 
-app.listen(3000, function () {
+app.listen(3000, function() {
   console.log("Listening on port 3000 and watching!");
 });

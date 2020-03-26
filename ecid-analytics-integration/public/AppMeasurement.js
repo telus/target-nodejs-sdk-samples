@@ -1,9 +1,9 @@
 //initialize AppMeasurement
-var s_account="adobetargetmobilewesteros"
-var s=s_gi(s_account)
+var s_account = "adobesummit2018intlocaldecisioning"; //report suite id
+var s = s_gi(s_account);
 
 /******** VISITOR ID SERVICE CONFIG - REQUIRES VisitorAPI.js ********/
-s.visitor=Visitor.getInstance("B8A054D958807F770A495DD6@AdobeOrg")
+s.visitor = Visitor.getInstance("65453EA95A70434F0A495D34@AdobeOrg");
 
 /************************** CONFIG SECTION **************************/
 /* You may add or alter any code config here. */
@@ -32,8 +32,8 @@ s.linkTrackEvents="None"
 /* WARNING: Changing any of the below variables will cause drastic
  changes to how your visitor data is collected.  Changes should only be
  made when instructed to do so by your account manager.*/
-s.trackingServer="adobetargetmobile.sc.omtrdc.net"
-s.trackingServerSecure="adobetargetmobile.sc.omtrdc.net"
+s.trackingServer="adobesummit2018int.sc.omtrdc.net"
+s.trackingServerSecure="adobesummit2018int.sc.omtrdc.net"
 
 /*
  Start ActivityMap Module
