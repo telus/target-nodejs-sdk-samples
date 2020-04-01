@@ -14,16 +14,23 @@ const fs = require("fs");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const TargetClient = require("@adobe/target-nodejs-sdk");
+
+
 const CONFIG = {
   client: "adobesummit2018",
   organizationId: "65453EA95A70434F0A495D34@AdobeOrg",
   timeout: 10000,
   logger: console,
   executionMode: "local",
-  artifactLocation: "https://target-local-decisioning-staging.s3.us-east-2.amazonaws.com/adobesummit2018/waters_test/rules.json"
+  artifactLocation: "https://assets.staging.adobetarget.com/adobesummit2018/waters_test/rules.json"
 };
 const targetClient = TargetClient.create(CONFIG);
 const TEMPLATE = fs.readFileSync(__dirname + "/templates/index.tpl").toString();
+const thirdPartyIdCookie = {
+  name: "thirdPartyId",
+  value: "a-third-party-id-123",
+  maxAge: 1860
+};
 
 const app = express();
 app.use(cookieParser());
@@ -56,6 +63,7 @@ function sendHtml(res, offer) {
 function sendSuccessResponse(res, response) {
   res.set(getResponseHeaders());
   saveCookie(res, response.targetCookie);
+  saveCookie(res, thirdPartyIdCookie);
   if(response.targetLocationHintCookie) {
     saveCookie(res, response.targetLocationHintCookie);
   }
@@ -75,7 +83,13 @@ app.get("/", async (req, res) => {
   const visitorCookie =
     req.cookies[encodeURIComponent(TargetClient.getVisitorCookieName(CONFIG.organizationId))];
   const targetCookie = req.cookies[TargetClient.TargetCookieName];
+
+  const id = {
+    thirdPartyId: thirdPartyIdCookie.value
+  };
+
   const request = {
+    id,
     context: {
       "userAgent": req.get("user-agent"),
       "channel": "web",
