@@ -22,7 +22,7 @@ const CONFIG = {
   timeout: 10000,
   logger: console,
   executionMode: "local",
-  artifactLocation: "https://assets.staging.adobetarget.com/adobesummit2018/waters_test/rules.json"
+  artifactPayload: require("./rules.json")
 };
 const targetClient = TargetClient.create(CONFIG);
 const TEMPLATE = fs.readFileSync(__dirname + "/templates/index.tpl").toString();
