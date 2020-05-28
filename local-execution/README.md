@@ -63,3 +63,9 @@ function targetReady() {
 ```
 
 Once configured in this way, and after the clientReadyCallback has been invoked, an app can make standard SDK method calls as normal.
+
+
+# Links:
+
+Homework Docs: https://experienceleaguecommunities.adobe.com/t5/local-decisioning-node-js-sdk/ct-p/target-nodejs-sdk-alpha
+Adobe Target activity: https://experience.adobe.com/#/@telus/target/activities/activitydetails/A-B/local-decisioning-testmay2820201310

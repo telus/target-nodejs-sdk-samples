@@ -72,10 +72,9 @@ function sendErrorResponse(res, error) {
 }
 
 const CONFIG = {
-  client: "adobesummit2018",
-  organizationId: "65453EA95A70434F0A495D34@AdobeOrg",
+  client: "telus",
+  organizationId: "67A50FC0539F0BBD0A490D45@AdobeOrg",
   executionMode: "local",
-  artifactPayload: require("./sampleRules"),
   clientReadyCallback: startExpressApp,
 };
 
@@ -91,7 +90,7 @@ function startExpressApp() {
         browser: { host: req.get("host") },
       },
       execute: {
-        mboxes: [{ name: "demo-marketing-offer1" }],
+        mboxes: [{ name: "local-decisioning-test" }],
       },
     };
 
